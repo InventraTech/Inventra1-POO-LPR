@@ -11,21 +11,31 @@ public class LoteMolde {
     private int qtd_atual;
     private LocalDate dt_entrada;
     private LocalDate dt_valide; // Mapeado a partir de dt_validade DATE
-    private BigDecimal valor_custo; // Mapeado do tipo NUMERIC(10,2)
+    private BigDecimal valor_compra; // Mapeado do tipo NUMERIC(10,2)
     private String nota_fiscal; // Mapeado a partir de nota_fis... VARCHAR(255)
 
     // Construtor completo conforme seu padrão (sem id_estoque no construtor)
-    public LoteMolde(int fk_produto, String numero_lote, int qtd_inicial, int qtd_atual,
-                     LocalDate dt_entrada, LocalDate dt_valide, BigDecimal valor_custo, String nota_fiscal) {
+    public LoteMolde(int fk_produto, String numero_lote, int qtd_inicial, int qtd_atual, LocalDate dt_entrada, LocalDate dt_valide, BigDecimal valor_custo, String nota_fiscal) {
         this.fk_produto = fk_produto;
         this.numero_lote = numero_lote;
         this.qtd_inicial = qtd_inicial;
         this.qtd_atual = qtd_atual;
         this.dt_entrada = dt_entrada;
         this.dt_valide = dt_valide;
-        this.valor_custo = valor_custo;
+        this.valor_compra = valor_custo;
         this.nota_fiscal = nota_fiscal;
-        id_estoque++;
+    }
+
+    public LoteMolde(int id_estoque, int fk_produto, String numero_lote, int qtd_inicial, int qtd_atual, LocalDate dt_entrada, LocalDate dt_valide, BigDecimal valor_compra, String nota_fiscal) {
+        this.id_estoque = id_estoque;
+        this.fk_produto = fk_produto;
+        this.numero_lote = numero_lote;
+        this.qtd_inicial = qtd_inicial;
+        this.qtd_atual = qtd_atual;
+        this.dt_entrada = dt_entrada;
+        this.dt_valide = dt_valide;
+        this.valor_compra = valor_compra;
+        this.nota_fiscal = nota_fiscal;
     }
 
     public int getId_estoque() {
@@ -84,12 +94,12 @@ public class LoteMolde {
         this.dt_valide = dt_valide;
     }
 
-    public BigDecimal getValor_custo() {
-        return valor_custo;
+    public BigDecimal getValor_compra() {
+        return valor_compra;
     }
 
-    public void setValor_custo(BigDecimal valor_custo) {
-        this.valor_custo = valor_custo;
+    public void setValor_compra(BigDecimal valor_compra) {
+        this.valor_compra = valor_compra;
     }
 
     public String getNota_fiscal() {

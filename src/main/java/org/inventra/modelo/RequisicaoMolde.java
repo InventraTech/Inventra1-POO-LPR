@@ -24,6 +24,18 @@ public class RequisicaoMolde {
         this.fkProduto = fkProduto;
     }
 
+    public RequisicaoMolde(int idRequisicao, int idTipoRequisicao, int quantidadeProduto, String motivo, String status, LocalDateTime dataHora, int fkFuncionarioSolicitante, int fkFuncionarioAprovador, int fkProduto) {
+        this.idRequisicao = idRequisicao;
+        this.idTipoRequisicao = idTipoRequisicao;
+        this.quantidadeProduto = quantidadeProduto;
+        this.motivo = motivo;
+        this.status = status;
+        this.dataHora = dataHora;
+        this.fkFuncionarioSolicitante = fkFuncionarioSolicitante;
+        this.fkFuncionarioAprovador = fkFuncionarioAprovador;
+        this.fkProduto = fkProduto;
+    }
+
     public int getIdRequisicao() {
         return idRequisicao;
     }

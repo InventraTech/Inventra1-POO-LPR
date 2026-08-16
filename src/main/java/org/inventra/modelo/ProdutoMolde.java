@@ -24,6 +24,19 @@ public class ProdutoMolde {
         this.ativo = ativo;
     }
 
+    public ProdutoMolde(int idProduto, String nome, int fk_marca, int fk_categoria, String unidadeMedida, int estoqueMin, int estoqueMax, int fk_fornecedor, String descricao, boolean ativo) {
+        this.idProduto = idProduto;
+        this.nome = nome;
+        this.fk_marca = fk_marca;
+        this.fk_categoria = fk_categoria;
+        this.unidadeMedida = unidadeMedida;
+        this.estoqueMin = estoqueMin;
+        this.estoqueMax = estoqueMax;
+        this.fk_fornecedor = fk_fornecedor;
+        this.descricao = descricao;
+        this.ativo = ativo;
+    }
+
     public int getIdProduto() {
         return idProduto;
     }

@@ -174,9 +174,9 @@ public class Main{
             System.out.print("""
                 Selecione a ação para realizar:
                 1. Inserir novo produto ao estoque;
-                2. 
+                2. Consultar lista de produtos;
                 3. Atualizar coluna;
-                4. Deletar produto;
+                4. Deletar produto.
                 """);
 
             int escolhaAcao = sc.nextInt();
@@ -211,8 +211,30 @@ public class Main{
                 System.out.println("Cadastrando Produto.");
                 ProdutoMolde NovoProduto = new ProdutoMolde(nome, fk_marca, fk_categoria, unidadeMedida, estoqueMin, estoqueMax, fk_fornecedor, descricao, ativo);
                 produtoDAO.insertProduto(NovoProduto);
-            }
-            else if(escolhaAcao == 3){
+            } else if (escolhaAcao == 2) {
+                List<ProdutoMolde> TodosProdutos = produtoDAO.selectProduto();
+
+                if (TodosProdutos.isEmpty()){
+                    System.out.println("A lista de produtos está vazia.");
+                } else{
+                    System.out.println("ID | NOME                 | MARCA | CAT | UN | EST.MIN | EST.MAX | FORN | DESCRIÇÃO            | ATIVO");
+                    for(ProdutoMolde produto : TodosProdutos){
+                        System.out.printf("%-2d | %-20s | %-5d | %-3d | %-2s | %-7d | %-7d | %-4d | %-20s | %-5b%n",
+                                produto.getIdProduto(),
+                                produto.getNome(),
+                                produto.getFk_marca(),
+                                produto.getFk_categoria(),
+                                produto.getUnidadeMedida(),
+                                produto.getEstoqueMin(),
+                                produto.getEstoqueMax(),
+                                produto.getFk_fornecedor(),
+                                produto.getDescricao(),
+                                produto.isAtivo()
+                        );
+                        System.out.println("=================================================================================================================================");
+                    }
+                }
+            } else if(escolhaAcao == 3){
                 String nomeColuna = "";
                 String novoValor = "";
 
@@ -339,7 +361,7 @@ public class Main{
                     System.out.println("ID | TIPO | QTD | MOTIVO               | STATUS   | DATA E HORA         | CADASTRO | APROVADOR | PRODUTO");
                     for(RequisicaoMolde requisicao : TodasRequisicoes){
                         System.out.printf("%-2d | %-4d | %-3d | %-20s | %-8s | %-19s | %-8d | %-9d | %-7d%n",
-                                requisicao.getIdTipoRequisicao(),
+                                requisicao.getIdRequisicao(),
                                 requisicao.getIdTipoRequisicao(),
                                 requisicao.getQuantidadeProduto(),
                                 requisicao.getMotivo(),
@@ -367,11 +389,10 @@ public class Main{
                 2. Quantidade Produto;
                 3. Motivo;
                 4. Status;
-                5. Data (AAAA-MM-DD);
-                6. Hora (HH:MM:SS);
-                7. Funcionário Cadastro;
-                8. Funcionário Aprovador;
-                9. Produto;
+                5. DataHora
+                6. Funcionário Solicitante;
+                7. Funcionário Aprovador;
+                8. Produto;
                 """);
                 int numColuna = sc.nextInt();
                 sc.nextLine();
@@ -397,26 +418,21 @@ public class Main{
                     novoValor = sc.nextLine();
                 }
                 else if (numColuna == 5){
-                    nomeColuna = "data";
-                    System.out.print("NOVA DATA (AAAA-MM-DD): ");
+                    nomeColuna = "datahora";
+                    System.out.print("Digite a nova data e hora (AAAA-MM-DDTHH:MM:SS) Ex: 2026-07-14T23:00:00: ");
                     novoValor = sc.nextLine();
                 }
                 else if (numColuna == 6){
-                    nomeColuna = "hora";
-                    System.out.print("NOVA HORA (HH:MM:SS): ");
-                    novoValor = sc.nextLine();
-                }
-                else if (numColuna == 7){
-                    nomeColuna = "fk_funcionario_cadastro";
+                    nomeColuna = "fk_funcionario_solicitante";
                     System.out.print("NOVO ID CADASTRADOR: ");
                     novoValor = sc.nextLine();
                 }
-                else if (numColuna == 8){
+                else if (numColuna == 7){
                     nomeColuna = "fk_funcionario_aprovador";
                     System.out.print("NOVO ID APROVADOR: ");
                     novoValor = sc.nextLine();
                 }
-                else if (numColuna == 9){
+                else if (numColuna == 8){
                     nomeColuna = "fk_produto";
                     System.out.print("NOVO ID PRODUTO: ");
                     novoValor = sc.nextLine();
@@ -499,7 +515,7 @@ public class Main{
                                 lote.getQtd_atual(),
                                 lote.getDt_entrada(),
                                 lote.getDt_valide(),
-                                lote.getValor_custo(), // O próprio compilador Java formata o BigDecimal com .2f quando solicitado
+                                lote.getValor_compra(), // O próprio compilador Java formata o BigDecimal com .2f quando solicitado
                                 lote.getNota_fiscal()
                         );
                         System.out.println("=================================================================================================================================");
@@ -559,7 +575,7 @@ public class Main{
                     novoValor = sc.nextLine();
                 }
                 else if (numColuna == 7){
-                    nomeColuna = "valor_custo";
+                    nomeColuna = "valor_compra";
                     System.out.print("NOVO VALOR DE CUSTO: ");
                     novoValor = sc.nextLine();
                 }

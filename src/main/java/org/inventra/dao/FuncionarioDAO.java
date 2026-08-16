@@ -51,7 +51,7 @@ public class FuncionarioDAO {
     public List<FuncionarioMolde> selectFuncionario(){
         List<FuncionarioMolde> array = new ArrayList<>();
 
-        String sql = "SELECT * FROM funcionario";
+        String sql = "SELECT * FROM funcionario ORDER BY id_funcionario";
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql);
@@ -69,12 +69,13 @@ public class FuncionarioDAO {
                 String status = rs.getString("status");
                 int fk_setor = rs.getInt("fk_setor");
 
-                FuncionarioMolde funcionario = new FuncionarioMolde(nome, senha, email, telefone, cpf, dt_admissao, status, fk_setor);
+                FuncionarioMolde funcionario = new FuncionarioMolde(id, nome, senha, email, telefone, cpf, dt_admissao, status, fk_setor);
                 array.add(funcionario);
             }
 
         } catch(SQLException erro){
             System.out.println("Erro ao consultar funcionário.");
+            erro.printStackTrace();
         }
         return array;
     }
