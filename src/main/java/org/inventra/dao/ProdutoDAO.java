@@ -5,7 +5,10 @@ import org.inventra.modelo.ProdutoMolde;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProdutoDAO {
     //! 1.CREATE
@@ -37,8 +40,36 @@ public class ProdutoDAO {
 
     //2 SELECT
 
-    public void selectProduto(){
+    public List<ProdutoMolde> selectProduto(){
+        List<ProdutoMolde> listaProdutos = new ArrayList<>();
 
+        String sql = "SELECT * FROM produto ORDER BY id_produto";
+
+        try (Connection conexao = ConexaoBanco.conectar();
+             PreparedStatement stmt = conexao.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()){
+
+            while(rs.next()){
+
+                int id = rs.getInt("id_produto");
+                String nome = rs.getString("nome");
+                int fk_marca = rs.getInt("fk_marca");
+                int fk_categoria = rs.getInt("fk_categoria");
+                String unidadeMedida = rs.getString("unidade_medida");
+                int estoqueMin = rs.getInt("fk_marca");
+                int estoqueMax = rs.getInt("fk_marca");
+                int fk_fornecedor = rs.getInt("fk_fornecedor");
+                String descricao = rs.getString("descricao");
+                boolean ativo = rs.getBoolean("ativo");
+
+                ProdutoMolde produto = new ProdutoMolde(id, nome, fk_marca, fk_categoria, unidadeMedida, estoqueMin, estoqueMax, fk_fornecedor, descricao, ativo);
+                listaProdutos.add(produto);
+            }
+
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return listaProdutos;
     }
 
     //! 3.UPDATE

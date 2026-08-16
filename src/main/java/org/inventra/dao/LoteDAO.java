@@ -14,7 +14,7 @@ public class LoteDAO {
 
     // 1. CREATE
     public void insertLote(LoteMolde lote){
-        String sql = "INSERT INTO lote (fk_produto, numero_lote, qtd_inicial, qtd_atual, dt_entrada, dt_validade, valor_custo, nota_fiscal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO lote (fk_produto, numero_lote, qtd_inicial, qtd_atual, dt_entrada, dt_validade, valor_compra, nota_fiscal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql)){
@@ -25,7 +25,7 @@ public class LoteDAO {
             stmt.setInt(4, lote.getQtd_atual());
             stmt.setObject(5, lote.getDt_entrada());
             stmt.setObject(6, lote.getDt_valide());
-            stmt.setBigDecimal(7, lote.getValor_custo()); // Utilização correta do BigDecimal
+            stmt.setBigDecimal(7, lote.getValor_compra()); // Utilização correta do BigDecimal
             stmt.setString(8, lote.getNota_fiscal());
 
             stmt.executeUpdate();
@@ -40,7 +40,7 @@ public class LoteDAO {
     // 2. READ
     public List<LoteMolde> selectLote(){
         List<LoteMolde> array = new ArrayList<>();
-        String sql = "SELECT * FROM lote";
+        String sql = "SELECT * FROM lote ORDER BY id_estoque";
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql);
@@ -54,10 +54,10 @@ public class LoteDAO {
                 int qtd_atual = rs.getInt("qtd_atual");
                 LocalDate dt_entrada = rs.getObject("dt_entrada", LocalDate.class);
                 LocalDate dt_validade = rs.getObject("dt_validade", LocalDate.class);
-                BigDecimal valor_custo = rs.getBigDecimal("valor_custo"); // Recuperação do BigDecimal
+                BigDecimal valor_custo = rs.getBigDecimal("valor_compra");
                 String nota_fiscal = rs.getString("nota_fiscal");
 
-                LoteMolde lote = new LoteMolde(fk_produto, numero_lote, qtd_inicial, qtd_atual, dt_entrada, dt_validade, valor_custo, nota_fiscal);
+                LoteMolde lote = new LoteMolde(id, fk_produto, numero_lote, qtd_inicial, qtd_atual, dt_entrada, dt_validade, valor_custo, nota_fiscal);
                 array.add(lote);
             }
 
@@ -95,9 +95,9 @@ public class LoteDAO {
                 LocalDate dt = LocalDate.parse(novoValor);
                 stmt.setObject(1, dt);
             }
-            else if (NomeColuna.equalsIgnoreCase("valor_custo")){
-                // Conversão de String de entrada para BigDecimal
-                stmt.setBigDecimal(1, new BigDecimal(novoValor));
+            else if (NomeColuna.equalsIgnoreCase("valor_compra")){
+                BigDecimal valorBigDecimal = new BigDecimal(novoValor);
+                stmt.setBigDecimal(1, valorBigDecimal);
             }
             else if (NomeColuna.equalsIgnoreCase("nota_fiscal")){
                 stmt.setString(1, novoValor);

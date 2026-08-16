@@ -16,7 +16,7 @@ public class RequisicaoDAO {
 
     // 1. CREATE
     public void insertRequisicao(RequisicaoMolde requisicao){
-        String sql = "INSERT INTO requisicoes (id_tipoRequisicao, quantidade_produto, motivo, status, data, hora, fk_funcionario_cadastro, fk_funcionario_aprovador, fk_produto) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Requisicao (id_tipoRequisicao, quantidade_prod, motivo, status, dataHora, fk_funcionario_solicitante, fk_funcionario_aprovador, fk_produto) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql)){
@@ -25,14 +25,10 @@ public class RequisicaoDAO {
             stmt.setInt(2, requisicao.getQuantidadeProduto());
             stmt.setString(3, requisicao.getMotivo());
             stmt.setString(4, requisicao.getStatus());
-
-            // Separa o LocalDateTime em LocalDate e LocalTime para salvar nas colunas separadas
-            stmt.setObject(5, requisicao.getDataHora().toLocalDate());
-            stmt.setObject(6, requisicao.getDataHora().toLocalTime());
-
-            stmt.setInt(7, requisicao.getFkFuncionarioSolicitante());
-            stmt.setInt(8, requisicao.getFkFuncionarioAprovador());
-            stmt.setInt(9, requisicao.getFkProduto());
+            stmt.setObject(5, requisicao.getDataHora());
+            stmt.setInt(6, requisicao.getFkFuncionarioSolicitante());
+            stmt.setInt(7, requisicao.getFkFuncionarioAprovador());
+            stmt.setInt(8, requisicao.getFkProduto());
 
             stmt.executeUpdate();
             System.out.println("Requisição cadastrada com sucesso.");
@@ -46,7 +42,7 @@ public class RequisicaoDAO {
     // 2. READ
     public List<RequisicaoMolde> selectRequisicao(){
         List<RequisicaoMolde> array = new ArrayList<>();
-        String sql = "SELECT * FROM requisicoes";
+        String sql = "SELECT * FROM requisicao ORDER BY id_requisicao";
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql);
@@ -55,20 +51,18 @@ public class RequisicaoDAO {
             while (rs.next()){
                 int id = rs.getInt("id_requisicao");
                 int id_tipo = rs.getInt("id_tipoRequisicao");
-                int qtd = rs.getInt("quantidade_produto");
+                int qtd = rs.getInt("quantidade_prod");
                 String motivo = rs.getString("motivo");
                 String status = rs.getString("status");
 
                 // Lê a data e a hora individualmente e as combina em um LocalDateTime
-                LocalDate data = rs.getObject("data", LocalDate.class);
-                LocalTime hora = rs.getObject("hora", LocalTime.class);
-                LocalDateTime dataHora = LocalDateTime.of(data, hora);
+                LocalDateTime dataHora = rs.getObject("dataHora", LocalDateTime.class);
 
-                int fk_func_cad = rs.getInt("fk_funcionario_cadastro");
+                int fk_func_cad = rs.getInt("fk_funcionario_solicitante");
                 int fk_func_aprov = rs.getInt("fk_funcionario_aprovador");
                 int fk_prod = rs.getInt("fk_produto");
 
-                RequisicaoMolde requisicao = new RequisicaoMolde(id_tipo, qtd, motivo, status, dataHora, fk_func_cad, fk_func_aprov, fk_prod);
+                RequisicaoMolde requisicao = new RequisicaoMolde(id, id_tipo, qtd, motivo, status, dataHora, fk_func_cad, fk_func_aprov, fk_prod);
                 array.add(requisicao);
             }
 
@@ -81,7 +75,7 @@ public class RequisicaoDAO {
 
     // 3. UPDATE
     public void updateRequisicao(String nomeColuna, String novoValor, int id_requisicao){
-        String sql = "UPDATE requisicoes SET " + nomeColuna + " = ? WHERE id_requisicao = ?";
+        String sql = "UPDATE requisicao SET " + nomeColuna + " = ? WHERE id_requisicao = ?";
 
         try (Connection conexao = ConexaoBanco.conectar();
              PreparedStatement stmt = conexao.prepareStatement(sql)){
@@ -98,15 +92,11 @@ public class RequisicaoDAO {
             else if (nomeColuna.equalsIgnoreCase("status")){
                 stmt.setString(1, novoValor);
             }
-            else if (nomeColuna.equalsIgnoreCase("data")){
-                LocalDate data = LocalDate.parse(novoValor);
+            else if (nomeColuna.equalsIgnoreCase("datahora")){
+                LocalDateTime data = LocalDateTime.parse(novoValor);
                 stmt.setObject(1, data);
             }
-            else if (nomeColuna.equalsIgnoreCase("hora")){
-                LocalTime hora = LocalTime.parse(novoValor);
-                stmt.setObject(1, hora);
-            }
-            else if (nomeColuna.equalsIgnoreCase("fk_funcionario_cadastro")){
+            else if (nomeColuna.equalsIgnoreCase("fk_funcionario_solicitante")){
                 stmt.setInt(1, Integer.parseInt(novoValor));
             }
             else if (nomeColuna.equalsIgnoreCase("fk_funcionario_aprovador")){
@@ -128,7 +118,7 @@ public class RequisicaoDAO {
 
     // 4. DELETE
     public void deleteRequisicao(int id_requisicao){
-        String sql = "DELETE FROM requisicoes WHERE id_requisicao = ?";
+        String sql = "DELETE FROM requisicao WHERE id_requisicao = ?";
 
         try (Connection conexao = ConexaoBanco.conectar();
              PreparedStatement stmt = conexao.prepareStatement(sql)){

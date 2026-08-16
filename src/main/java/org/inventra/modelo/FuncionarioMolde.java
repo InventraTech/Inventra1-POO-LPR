@@ -22,7 +22,18 @@ public class FuncionarioMolde {
         this.cpf = cpf;
         this.dt_admissao = dt_admissao;
         this.status = status;
-        id_funcionario++;
+    }
+
+    public FuncionarioMolde(int id_funcionario, String nome, String senha, String email, String telefone, String cpf, LocalDate dt_admissao, String status, int fk_setor) {
+        this.id_funcionario = id_funcionario;
+        this.nome = nome;
+        this.senha = senha;
+        this.fk_setor = fk_setor;
+        this.email = email;
+        this.telefone = telefone;
+        this.cpf = cpf;
+        this.dt_admissao = dt_admissao;
+        this.status = status;
     }
 
     public int getId_funcionario() {
