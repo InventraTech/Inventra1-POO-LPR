@@ -1,4 +1,4 @@
-package org.inventra.modelo;
+package org.inventra.model;
 
 public class FornecedorMolde {
     private int id_fornecedor;
@@ -8,6 +8,9 @@ public class FornecedorMolde {
     private String telefone;
     private int nota_vpq;
     private int fk_regiao;
+
+    //VÁRIAVEL PARA SUBSTITUIR A FK
+    private String regiao;
 
     public FornecedorMolde(int id_fornecedor, String nome_juridico, String cnpj, String email, String telefone, int nota_vpq, int fk_regiao) {
         this.id_fornecedor = id_fornecedor;
@@ -27,6 +30,18 @@ public class FornecedorMolde {
         this.nota_vpq = nota_vpq;
         this.fk_regiao = fk_regiao;
     }
+
+    public FornecedorMolde(int id_fornecedor, String nome_juridico, String cnpj, String email, String telefone, int nota_vpq, String regiao) {
+        this.id_fornecedor = id_fornecedor;
+        this.nome_juridico = nome_juridico;
+        this.cnpj = cnpj;
+        this.email = email;
+        this.telefone = telefone;
+        this.nota_vpq = nota_vpq;
+        this.regiao = regiao;
+    }
+
+
 
     public int getId_fornecedor() {
         return id_fornecedor;
@@ -78,6 +93,10 @@ public class FornecedorMolde {
 
     public void setFk_regiao(int fk_regiao) {
         this.fk_regiao = fk_regiao;
+    }
+
+    public String getRegiao() {
+        return regiao;
     }
 }
 

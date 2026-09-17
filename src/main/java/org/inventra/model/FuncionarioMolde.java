@@ -1,4 +1,4 @@
-package org.inventra.modelo;
+package org.inventra.model;
 
 import java.time.LocalDate;
 
@@ -12,6 +12,9 @@ public class FuncionarioMolde {
     private String cpf;
     private LocalDate dt_admissao;
     private String status;
+
+    //VÁRIAVEL PARA SUBSTITUIR A FK
+    private String setor;
 
     public FuncionarioMolde(String nome, String senha, String email, String telefone, String cpf, LocalDate dt_admissao, String status, int fk_setor) {
         this.nome = nome;
@@ -35,6 +38,20 @@ public class FuncionarioMolde {
         this.dt_admissao = dt_admissao;
         this.status = status;
     }
+
+    //SOBRECARGA PARA USAR O JOIN E SUBSTITUIR A FK
+    public FuncionarioMolde(int id_funcionario, String nome, String senha, String email, String telefone, String cpf, LocalDate dt_admissao, String status, String setor) {
+        this.id_funcionario = id_funcionario;
+        this.nome = nome;
+        this.senha = senha;
+        this.setor = setor;
+        this.email = email;
+        this.telefone = telefone;
+        this.cpf = cpf;
+        this.dt_admissao = dt_admissao;
+        this.status = status;
+    }
+
 
     public int getId_funcionario() {
         return id_funcionario;
@@ -106,6 +123,10 @@ public class FuncionarioMolde {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getSetor() {
+        return setor;
     }
 
     @Override

@@ -1,18 +1,21 @@
-package org.inventra.modelo;
+package org.inventra.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class LoteMolde {
-    private int id_estoque;
+    private int id_lote;
     private int fk_produto;
-    private String numero_lote; // Mapeado a partir de numero_l... VARCHAR(80)
+    private String numero_lote;
     private int qtd_inicial;
     private int qtd_atual;
     private LocalDate dt_entrada;
-    private LocalDate dt_valide; // Mapeado a partir de dt_validade DATE
-    private BigDecimal valor_compra; // Mapeado do tipo NUMERIC(10,2)
-    private String nota_fiscal; // Mapeado a partir de nota_fis... VARCHAR(255)
+    private LocalDate dt_validade;
+    private BigDecimal valor_compra;
+    private String nota_fiscal;
+
+    //VÁRIAVEL PARA SUBSTITUIR A FK
+    private String produto;
 
     // Construtor completo conforme seu padrão (sem id_estoque no construtor)
     public LoteMolde(int fk_produto, String numero_lote, int qtd_inicial, int qtd_atual, LocalDate dt_entrada, LocalDate dt_valide, BigDecimal valor_custo, String nota_fiscal) {
@@ -21,29 +24,41 @@ public class LoteMolde {
         this.qtd_inicial = qtd_inicial;
         this.qtd_atual = qtd_atual;
         this.dt_entrada = dt_entrada;
-        this.dt_valide = dt_valide;
+        this.dt_validade = dt_valide;
         this.valor_compra = valor_custo;
         this.nota_fiscal = nota_fiscal;
     }
 
     public LoteMolde(int id_estoque, int fk_produto, String numero_lote, int qtd_inicial, int qtd_atual, LocalDate dt_entrada, LocalDate dt_valide, BigDecimal valor_compra, String nota_fiscal) {
-        this.id_estoque = id_estoque;
+        this.id_lote = id_estoque;
         this.fk_produto = fk_produto;
         this.numero_lote = numero_lote;
         this.qtd_inicial = qtd_inicial;
         this.qtd_atual = qtd_atual;
         this.dt_entrada = dt_entrada;
-        this.dt_valide = dt_valide;
+        this.dt_validade = dt_valide;
         this.valor_compra = valor_compra;
         this.nota_fiscal = nota_fiscal;
     }
 
-    public int getId_estoque() {
-        return id_estoque;
+    public LoteMolde(int id_estoque, String produto, String numero_lote, int qtd_inicial, int qtd_atual, LocalDate dt_entrada, LocalDate dt_valide, BigDecimal valor_compra, String nota_fiscal) {
+        this.id_lote = id_estoque;
+        this.produto = produto;
+        this.numero_lote = numero_lote;
+        this.qtd_inicial = qtd_inicial;
+        this.qtd_atual = qtd_atual;
+        this.dt_entrada = dt_entrada;
+        this.dt_validade = dt_valide;
+        this.valor_compra = valor_compra;
+        this.nota_fiscal = nota_fiscal;
     }
 
-    public void setId_estoque(int id_estoque) {
-        this.id_estoque = id_estoque;
+    public int getId_lote() {
+        return id_lote;
+    }
+
+    public void setId_lote(int id_lote) {
+        this.id_lote = id_lote;
     }
 
     public int getFk_produto() {
@@ -86,12 +101,12 @@ public class LoteMolde {
         this.dt_entrada = dt_entrada;
     }
 
-    public LocalDate getDt_valide() {
-        return dt_valide;
+    public LocalDate getDt_validade() {
+        return dt_validade;
     }
 
-    public void setDt_valide(LocalDate dt_valide) {
-        this.dt_valide = dt_valide;
+    public void setDt_validade(LocalDate dt_validade) {
+        this.dt_validade = dt_validade;
     }
 
     public BigDecimal getValor_compra() {
@@ -108,5 +123,9 @@ public class LoteMolde {
 
     public void setNota_fiscal(String nota_fiscal) {
         this.nota_fiscal = nota_fiscal;
+    }
+
+    public String getProduto() {
+        return produto;
     }
 }

@@ -1,4 +1,4 @@
-package org.inventra.modelo;
+package org.inventra.model;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +13,12 @@ public class RequisicaoMolde {
     private int fkFuncionarioAprovador;
     private int fkProduto;
 
+    //VÁRIAVEL PARA SUBSTITUIR A FK
+    private String tipoRequisicao;
+    private String funcionarioSolicitante;
+    private String funcionarioAprovador;
+    private String produto;
+
     public RequisicaoMolde(int id_tipoRequisicao, int quantidadeProduto, String motivo, String status, LocalDateTime dataHora, int fkFuncionarioSolicitante, int fkFuncionarioAprovador, int fkProduto) {
         this.idTipoRequisicao = id_tipoRequisicao;
         this.quantidadeProduto = quantidadeProduto;
@@ -22,6 +28,18 @@ public class RequisicaoMolde {
         this.fkFuncionarioSolicitante = fkFuncionarioSolicitante;
         this.fkFuncionarioAprovador = fkFuncionarioAprovador;
         this.fkProduto = fkProduto;
+    }
+
+    public RequisicaoMolde(int idRequisicao, String tipoRequisicao, int quantidadeProduto, String motivo, String status, LocalDateTime dataHora, String funcionarioSolicitante, String funcionarioAprovador, String produto) {
+        this.idRequisicao = idRequisicao;
+        this.tipoRequisicao = tipoRequisicao;
+        this.quantidadeProduto = quantidadeProduto;
+        this.motivo = motivo;
+        this.status = status;
+        this.dataHora = dataHora;
+        this.funcionarioSolicitante = funcionarioSolicitante;
+        this.funcionarioAprovador = funcionarioAprovador;
+        this.produto = produto;
     }
 
     public RequisicaoMolde(int idRequisicao, int idTipoRequisicao, int quantidadeProduto, String motivo, String status, LocalDateTime dataHora, int fkFuncionarioSolicitante, int fkFuncionarioAprovador, int fkProduto) {
@@ -106,5 +124,21 @@ public class RequisicaoMolde {
 
     public void setFkProduto(int fkProduto) {
         this.fkProduto = fkProduto;
+    }
+
+    public String getFuncionarioAprovador() {
+        return funcionarioAprovador;
+    }
+
+    public String getFuncionarioSolicitante() {
+        return funcionarioSolicitante;
+    }
+
+    public String getProduto() {
+        return produto;
+    }
+
+    public String getTipoRequisicao() {
+        return tipoRequisicao;
     }
 }

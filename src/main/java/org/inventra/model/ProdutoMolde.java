@@ -1,4 +1,4 @@
-package org.inventra.modelo;
+package org.inventra.model;
 
 public class ProdutoMolde {
     private int idProduto;
@@ -11,6 +11,11 @@ public class ProdutoMolde {
     private int fk_fornecedor;
     private String descricao;
     private boolean ativo;
+
+    //Váriaveis para puxar o nome das foreign keys
+    private String marca;
+    private String categoria;
+    private String fornecedor;
 
     public ProdutoMolde (String nome, int fk_marca, int fk_categoria, String unidadeMedida, int estoqueMin, int estoqueMax, int fk_fornecedor, String descricao, boolean ativo) {
         this.nome = nome;
@@ -33,6 +38,34 @@ public class ProdutoMolde {
         this.estoqueMin = estoqueMin;
         this.estoqueMax = estoqueMax;
         this.fk_fornecedor = fk_fornecedor;
+        this.descricao = descricao;
+        this.ativo = ativo;
+    }
+
+
+
+    public String getNomeCategoria() {
+        return categoria;
+    }
+
+    public String getNomeFornecedor() {
+        return fornecedor;
+    }
+
+    public String getNomeMarca() {
+        return marca;
+    }
+
+    //CONSTRUTOR PARA SER USADO PARA OS JOINS
+    public ProdutoMolde(int idProduto, String nome, String marca, String categoria, String unidadeMedida, int estoqueMin, int estoqueMax, String fornecedor, String descricao, boolean ativo){
+        this.idProduto = idProduto;
+        this.nome = nome;
+        this.marca = marca;
+        this.categoria = categoria;
+        this.unidadeMedida = unidadeMedida;
+        this.estoqueMin = estoqueMin;
+        this.estoqueMax = estoqueMax;
+        this.fornecedor = fornecedor;
         this.descricao = descricao;
         this.ativo = ativo;
     }

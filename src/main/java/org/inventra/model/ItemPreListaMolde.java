@@ -1,4 +1,4 @@
-package org.inventra.modelo;
+package org.inventra.model;
 
 public class ItemPreListaMolde {
     private int id_item_prelista;
@@ -6,6 +6,10 @@ public class ItemPreListaMolde {
     private int fk_fornecedor;
     private int fk_produto;
     private int qtd;
+
+    //VARIAVÉIS PARA SUBSTITUIR AS FK
+    private String fornecedor;
+    private String produto;
 
     public ItemPreListaMolde(int id_item_prelista, int fk_preLista, int fk_fornecedor, int fk_produto, int qtd) {
         this.id_item_prelista = id_item_prelista;
@@ -19,6 +23,15 @@ public class ItemPreListaMolde {
         this.fk_preLista = fk_preLista;
         this.fk_fornecedor = fk_fornecedor;
         this.fk_produto = fk_produto;
+        this.qtd = qtd;
+    }
+
+    //
+    public ItemPreListaMolde(int id_item_prelista, int fk_preLista, String fornecedor, String produto, int qtd) {
+        this.id_item_prelista = id_item_prelista;
+        this.fk_preLista = fk_preLista;
+        this.fornecedor = fornecedor;
+        this.produto = produto;
         this.qtd = qtd;
     }
 
@@ -56,5 +69,13 @@ public class ItemPreListaMolde {
 
     public void setQtd(int qtd) {
         this.qtd = qtd;
+    }
+
+    public String getFornecedor() {
+        return fornecedor;
+    }
+
+    public String getProduto() {
+        return produto;
     }
 }
