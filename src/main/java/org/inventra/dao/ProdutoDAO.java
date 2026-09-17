@@ -1,7 +1,7 @@
 package org.inventra.dao;
 
 import org.inventra.conexao.ConexaoBanco;
-import org.inventra.modelo.ProdutoMolde;
+import org.inventra.model.ProdutoMolde;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ProdutoDAO {
     //! 1.CREATE
-    public void insertProduto(ProdutoMolde produto){
+    public void inserirProduto(ProdutoMolde produto){
 
         String sql = "INSERT INTO produto (nome, fk_marca, fk_categoria, unidade_medida, estoque_min, estoque_max, fk_fornecedor, descricao, ativo) values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -40,29 +40,36 @@ public class ProdutoDAO {
 
     //2 SELECT
 
-    public List<ProdutoMolde> selectProduto(){
+    public List<ProdutoMolde> listarProdutos(){
         List<ProdutoMolde> listaProdutos = new ArrayList<>();
 
-        String sql = "SELECT * FROM produto ORDER BY id_produto";
+        String sql = """
+            SELECT p.id_produto, p.nome, m.nome AS nome_marca, c.nome AS nome_categoria, p.unidade_medida, p.estoque_min, p.estoque_max,
+            	   f.nome_juridico AS nome_fornecedor, p.descricao, p.ativo
+            FROM produto p
+            JOIN marca m ON p.fk_marca = m.id_marca
+            JOIN categoria c ON p.fk_categoria = c.id_categoria
+            JOIN fornecedor f ON p.fk_fornecedor = f.id_fornecedor
+            ORDER BY id_produto
+        """;
 
         try (Connection conexao = ConexaoBanco.conectar();
              PreparedStatement stmt = conexao.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()){
 
             while(rs.next()){
-
                 int id = rs.getInt("id_produto");
                 String nome = rs.getString("nome");
-                int fk_marca = rs.getInt("fk_marca");
-                int fk_categoria = rs.getInt("fk_categoria");
+                String marca = rs.getString("nome_marca");
+                String categoria = rs.getString("nome_categoria");
                 String unidadeMedida = rs.getString("unidade_medida");
-                int estoqueMin = rs.getInt("fk_marca");
-                int estoqueMax = rs.getInt("fk_marca");
-                int fk_fornecedor = rs.getInt("fk_fornecedor");
+                int estoqueMin = rs.getInt("estoque_min");
+                int estoqueMax = rs.getInt("estoque_max");
+                String fornecedor = rs.getString("nome_fornecedor");
                 String descricao = rs.getString("descricao");
                 boolean ativo = rs.getBoolean("ativo");
 
-                ProdutoMolde produto = new ProdutoMolde(id, nome, fk_marca, fk_categoria, unidadeMedida, estoqueMin, estoqueMax, fk_fornecedor, descricao, ativo);
+                ProdutoMolde produto = new ProdutoMolde(id, nome, marca, categoria, unidadeMedida, estoqueMin, estoqueMax, fornecedor, descricao, ativo);
                 listaProdutos.add(produto);
             }
 
@@ -73,7 +80,7 @@ public class ProdutoDAO {
     }
 
     //! 3.UPDATE
-    public void updateProduto(String nomeColuna, String novoValor, int id_produto){
+    public void atualizarProduto(String nomeColuna, String novoValor, int id_produto){
 
         String sql = ("UPDATE produto SET "+nomeColuna+" = ? WHERE id_produto = ?");
 
@@ -116,7 +123,7 @@ public class ProdutoDAO {
     }
 
     //! 4.DELETE
-    public void deleteProduto(int id_produto){
+    public void deletarProduto(int id_produto){
         String sql = "DELETE FROM produto WHERE id_produto = ?";
 
         try(Connection conexao = ConexaoBanco.conectar();

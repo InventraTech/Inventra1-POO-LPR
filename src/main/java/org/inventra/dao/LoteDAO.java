@@ -1,7 +1,7 @@
 package org.inventra.dao;
 
 import org.inventra.conexao.ConexaoBanco;
-import org.inventra.modelo.LoteMolde;
+import org.inventra.model.LoteMolde;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,7 +13,7 @@ import java.util.List;
 public class LoteDAO {
 
     // 1. CREATE
-    public void insertLote(LoteMolde lote){
+    public void inserirLote(LoteMolde lote){
         String sql = "INSERT INTO lote (fk_produto, numero_lote, qtd_inicial, qtd_atual, dt_entrada, dt_validade, valor_compra, nota_fiscal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try(Connection conexao = ConexaoBanco.conectar();
@@ -24,7 +24,7 @@ public class LoteDAO {
             stmt.setInt(3, lote.getQtd_inicial());
             stmt.setInt(4, lote.getQtd_atual());
             stmt.setObject(5, lote.getDt_entrada());
-            stmt.setObject(6, lote.getDt_valide());
+            stmt.setObject(6, lote.getDt_validade());
             stmt.setBigDecimal(7, lote.getValor_compra()); // Utilização correta do BigDecimal
             stmt.setString(8, lote.getNota_fiscal());
 
@@ -38,17 +38,22 @@ public class LoteDAO {
     }
 
     // 2. READ
-    public List<LoteMolde> selectLote(){
+    public List<LoteMolde> listarLote(){
         List<LoteMolde> array = new ArrayList<>();
-        String sql = "SELECT * FROM lote ORDER BY id_estoque";
+        String sql = """
+            SELECT l.id_lote, p.nome AS nome_produto, l.numero_lote, l.qtd_inicial, l.qtd_atual, l.dt_entrada, l.dt_validade, l.valor_compra, l.nota_fiscal
+            FROM lote l
+            JOIN produto p ON l.fk_produto = p.id_produto
+            ORDER BY id_lote
+        """;
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery()){
 
             while (rs.next()){
-                int id = rs.getInt("id_estoque");
-                int fk_produto = rs.getInt("fk_produto");
+                int id = rs.getInt("id_lote");
+                String produto = rs.getString("nome_produto");
                 String numero_lote = rs.getString("numero_lote");
                 int qtd_inicial = rs.getInt("qtd_inicial");
                 int qtd_atual = rs.getInt("qtd_atual");
@@ -57,7 +62,7 @@ public class LoteDAO {
                 BigDecimal valor_custo = rs.getBigDecimal("valor_compra");
                 String nota_fiscal = rs.getString("nota_fiscal");
 
-                LoteMolde lote = new LoteMolde(id, fk_produto, numero_lote, qtd_inicial, qtd_atual, dt_entrada, dt_validade, valor_custo, nota_fiscal);
+                LoteMolde lote = new LoteMolde(id, produto, numero_lote, qtd_inicial, qtd_atual, dt_entrada, dt_validade, valor_custo, nota_fiscal);
                 array.add(lote);
             }
 
@@ -69,7 +74,7 @@ public class LoteDAO {
     }
 
     // 3. UPDATE
-    public void updateLote(String NomeColuna, String novoValor, int id_estoque){
+    public void atualizarLote(String NomeColuna, String novoValor, int id_lote){
         String sql = ("UPDATE lote SET "+NomeColuna+" = ? WHERE id_estoque = ?");
 
         try (Connection conexao = ConexaoBanco.conectar();
@@ -103,7 +108,7 @@ public class LoteDAO {
                 stmt.setString(1, novoValor);
             }
 
-            stmt.setInt(2, id_estoque);
+            stmt.setInt(2, id_lote);
             stmt.executeUpdate();
             System.out.println("Lote atualizado!");
 
@@ -114,19 +119,19 @@ public class LoteDAO {
     }
 
     // 4. DELETE
-    public void deleteLote(int id_estoque){
-        String sql = "DELETE FROM lote WHERE id_estoque = ?";
+    public void deletarLote(int id_lote){
+        String sql = "DELETE FROM lote WHERE id_lote = ?";
 
         try (Connection conexao = ConexaoBanco.conectar();
              PreparedStatement stmt = conexao.prepareStatement(sql)){
 
-            stmt.setInt(1, id_estoque);
+            stmt.setInt(1, id_lote);
             int linhasExecutadas = stmt.executeUpdate();
 
             if(linhasExecutadas > 0){
                 System.out.println("Alteração concluída com sucesso.");
             } else {
-                System.out.println("Nenhum lote com o id "+id_estoque+" foi encontrado.");
+                System.out.println("Nenhum lote com o id "+id_lote+" foi encontrado.");
             }
 
         } catch (SQLException erro) {

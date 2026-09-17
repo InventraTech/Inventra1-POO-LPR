@@ -1,13 +1,11 @@
 package org.inventra.dao;
 
 import org.inventra.conexao.ConexaoBanco;
-import org.inventra.modelo.RequisicaoMolde;
+import org.inventra.model.RequisicaoMolde;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +13,8 @@ import java.util.List;
 public class RequisicaoDAO {
 
     // 1. CREATE
-    public void insertRequisicao(RequisicaoMolde requisicao){
-        String sql = "INSERT INTO Requisicao (id_tipoRequisicao, quantidade_prod, motivo, status, dataHora, fk_funcionario_solicitante, fk_funcionario_aprovador, fk_produto) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    public void inserirRequisicao(RequisicaoMolde requisicao){
+        String sql = "INSERT INTO Requisicao (id_tipoRequisicao, quantidade_prod, motivo, status, dt_requisicao, fk_funcionario_solicitante, fk_funcionario_aprovador, fk_produto) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql)){
@@ -40,9 +38,18 @@ public class RequisicaoDAO {
     }
 
     // 2. READ
-    public List<RequisicaoMolde> selectRequisicao(){
+    public List<RequisicaoMolde> listarRequisicoes(){
         List<RequisicaoMolde> array = new ArrayList<>();
-        String sql = "SELECT * FROM requisicao ORDER BY id_requisicao";
+        String sql = """
+            SELECT r.id_requisicao, t.tipo AS tipo_requisicao, r.quantidade_prod, r.motivo, r.status,
+            r.dt_requisicao, fs.nome AS funcionario_solicitante, fa.nome AS funcionario_aprovador, p.nome AS produto
+            FROM requisicao r
+            JOIN tipo_Requisicao t ON r.id_tipoRequisicao = t.id_tipoRequisicao
+            JOIN funcionario fs ON r.fk_funcionario_solicitante = fs.id_funcionario
+            JOIN funcionario fa ON r.fk_funcionario_aprovador = fa.id_funcionario
+            JOIN produto p ON r.fk_produto = p.id_produto
+            ORDER BY id_requisicao
+        """;
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql);
@@ -50,19 +57,19 @@ public class RequisicaoDAO {
 
             while (rs.next()){
                 int id = rs.getInt("id_requisicao");
-                int id_tipo = rs.getInt("id_tipoRequisicao");
+                String idTipoRequisicao = rs.getString("tipo_requisicao");
                 int qtd = rs.getInt("quantidade_prod");
                 String motivo = rs.getString("motivo");
                 String status = rs.getString("status");
 
                 // Lê a data e a hora individualmente e as combina em um LocalDateTime
-                LocalDateTime dataHora = rs.getObject("dataHora", LocalDateTime.class);
+                LocalDateTime dataHora = rs.getObject("dt_requisicao", LocalDateTime.class);
 
-                int fk_func_cad = rs.getInt("fk_funcionario_solicitante");
-                int fk_func_aprov = rs.getInt("fk_funcionario_aprovador");
-                int fk_prod = rs.getInt("fk_produto");
+                String funcionarioSolicitante = rs.getString("funcionario_solicitante");
+                String funcionarioAprovador = rs.getString("funcionario_aprovador");
+                String produto = rs.getString("produto");
 
-                RequisicaoMolde requisicao = new RequisicaoMolde(id, id_tipo, qtd, motivo, status, dataHora, fk_func_cad, fk_func_aprov, fk_prod);
+                RequisicaoMolde requisicao = new RequisicaoMolde(id, idTipoRequisicao, qtd, motivo, status, dataHora, funcionarioSolicitante, funcionarioAprovador, produto);
                 array.add(requisicao);
             }
 
@@ -74,7 +81,7 @@ public class RequisicaoDAO {
     }
 
     // 3. UPDATE
-    public void updateRequisicao(String nomeColuna, String novoValor, int id_requisicao){
+    public void atualizarRequisicao(String nomeColuna, String novoValor, int id_requisicao){
         String sql = "UPDATE requisicao SET " + nomeColuna + " = ? WHERE id_requisicao = ?";
 
         try (Connection conexao = ConexaoBanco.conectar();
@@ -117,7 +124,7 @@ public class RequisicaoDAO {
     }
 
     // 4. DELETE
-    public void deleteRequisicao(int id_requisicao){
+    public void deletarRequisicao(int id_requisicao){
         String sql = "DELETE FROM requisicao WHERE id_requisicao = ?";
 
         try (Connection conexao = ConexaoBanco.conectar();

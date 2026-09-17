@@ -1,7 +1,7 @@
 package org.inventra.dao;
 
 import org.inventra.conexao.ConexaoBanco;
-import org.inventra.modelo.FuncionarioMolde;
+import org.inventra.model.FuncionarioMolde;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,7 +17,7 @@ public class FuncionarioDAO {
      * A classe insertFuncionario serve para inserir novos dados na tabela funcionários
      * @author Jorge Llanos
      */
-    public void insertFuncionario(FuncionarioMolde funcionario){
+    public void inserirFuncionario(FuncionarioMolde funcionario){
 
         //String sql: É o código SQL que será enviado para ser executado no banco.
         String sql = "INSERT INTO funcionario (nome, senha, fk_setor, email, telefone, cpf, dt_admissao, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -48,10 +48,16 @@ public class FuncionarioDAO {
     /**
      * O metodo SelectFuncionario exibe as colunas presentes no banco e seus valores
      */
-    public List<FuncionarioMolde> selectFuncionario(){
+    public List<FuncionarioMolde> listarFuncionario(){
         List<FuncionarioMolde> array = new ArrayList<>();
 
-        String sql = "SELECT * FROM funcionario ORDER BY id_funcionario";
+        String sql = """
+            SELECT f.id_funcionario, f.nome AS nome_funcionario, f.senha, f. email, f.telefone, f.cpf,
+            f.dt_admissao, f.status, s.nome AS setor
+            FROM funcionario f 
+            JOIN setor s ON f.fk_setor = s.id_setor
+            ORDER BY f.id_funcionario
+        """;
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql);
@@ -60,16 +66,16 @@ public class FuncionarioDAO {
             while (rs.next()){
 
                 int id = rs.getInt("id_funcionario");
-                String nome = rs.getString("nome");
+                String nome = rs.getString("nome_funcionario");
                 String senha = rs.getString("senha");
                 String email = rs.getString("email");
                 String telefone = rs.getString("telefone");
                 String cpf = rs.getString("cpf");
                 LocalDate dt_admissao = rs.getObject("dt_admissao", LocalDate.class);
                 String status = rs.getString("status");
-                int fk_setor = rs.getInt("fk_setor");
+                String setor = rs.getString("setor");
 
-                FuncionarioMolde funcionario = new FuncionarioMolde(id, nome, senha, email, telefone, cpf, dt_admissao, status, fk_setor);
+                FuncionarioMolde funcionario = new FuncionarioMolde(id, nome, senha, email, telefone, cpf, dt_admissao, status, setor);
                 array.add(funcionario);
             }
 
@@ -84,7 +90,7 @@ public class FuncionarioDAO {
     /**
      * @author Jorge LLanos
      */
-    public void updateFuncionario(String NomeColuna, String novoValor, int id_funcionario){
+    public void atualizarFuncionario(String NomeColuna, String novoValor, int id_funcionario){
 
         String sql = ("UPDATE funcionario SET "+NomeColuna+" = ? WHERE id_funcionario = ?");
 
@@ -131,7 +137,7 @@ public class FuncionarioDAO {
      * Esse método deleta um funcionário com base em seu número de ID
      * @author Jorge Llanos
      */
-    public void deleteFuncionario(int id_funcionario){
+    public void deletarFuncionario(int id_funcionario){
 
         String sql = "DELETE FROM funcionario WHERE id_funcionario = ?";
 

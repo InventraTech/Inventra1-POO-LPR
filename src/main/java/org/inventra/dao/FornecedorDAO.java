@@ -1,7 +1,7 @@
 package org.inventra.dao;
 
 import org.inventra.conexao.ConexaoBanco;
-import org.inventra.modelo.FornecedorMolde;
+import org.inventra.model.FornecedorMolde;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FornecedorDAO {
-    public void insertFornecedor(FornecedorMolde fornecedor){
+    public void inserirFornecedor(FornecedorMolde fornecedor){
 
         String sql = "INSERT INTO fornecedor (nome_juridico, cnpj, email, telefone, nota_vpq, fk_regiao) VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -32,10 +32,15 @@ public class FornecedorDAO {
         }
     }
 
-    public List<FornecedorMolde> selectFornecedor(){
+    public List<FornecedorMolde> listarFornecedor(){
         List<FornecedorMolde> listaFornecedores = new ArrayList<>();
 
-        String sql = "SELECT * FROM fornecedor ORDER BY id_fornecedor";
+        String sql = """
+            SELECT f.id_fornecedor, f.nome_juridico, f.cnpj, f.email, f.telefone, f.nota_vpq, CONCAT(r.estado, ' | ', r.cidade) AS regiao
+            FROM fornecedor f 
+            JOIN regiao r ON f.fk_regiao = r.id_regiao
+            ORDER BY f.id_fornecedor
+        """;
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql);
@@ -48,9 +53,9 @@ public class FornecedorDAO {
                 String email = rs.getString("email");
                 String telefone = rs.getString("telefone");
                 int nota_vpq = rs.getInt("nota_vpq");
-                int fk_regiao = rs.getInt("fk_regiao");
+                String regiao = rs.getString("regiao");
 
-                FornecedorMolde novoFornecedor = new FornecedorMolde(id, nome_juridico, cnpj, email, telefone, nota_vpq, fk_regiao);
+                FornecedorMolde novoFornecedor = new FornecedorMolde(id, nome_juridico, cnpj, email, telefone, nota_vpq, regiao);
                 listaFornecedores.add(novoFornecedor);
             }
 
@@ -60,7 +65,7 @@ public class FornecedorDAO {
         return listaFornecedores;
     }
 
-    public void updateFornecedor(String NomeColuna, String novoValor, int id_fornecedor) {
+    public void atualizarFornecedor(String NomeColuna, String novoValor, int id_fornecedor) {
         String sql = ("UPDATE fornecedor SET " + NomeColuna + " = ? WHERE id_fornecedor = ?");
 
         try (Connection conexao = ConexaoBanco.conectar();
@@ -97,7 +102,7 @@ public class FornecedorDAO {
         }
     }
 
-    public void deleteFornecedor(int id_fornecedor){
+    public void deletarFornecedor(int id_fornecedor){
         String sql = "DELETE FROM fornecedor WHERE id_fornecedor = ?";
 
         try (Connection conexao = ConexaoBanco.conectar();

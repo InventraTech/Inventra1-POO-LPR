@@ -1,7 +1,7 @@
 package org.inventra.dao;
 
 import org.inventra.conexao.ConexaoBanco;
-import org.inventra.modelo.ItemPreListaMolde;
+import org.inventra.model.ItemPreListaMolde;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ItemPreListaDAO {
     //CREATE
-    public void insertItemPreLista(ItemPreListaMolde ItemPreLista){
+    public void inserirItemPreLista(ItemPreListaMolde ItemPreLista){
 
         String sql = "INSERT INTO item_pre_lista (fk_pre_lista, fk_fornecedor, fk_produto, qtd) VALUES(?, ?, ?, ?)";
 
@@ -32,10 +32,16 @@ public class ItemPreListaDAO {
         }
     }
     //READ
-    public List<ItemPreListaMolde> selectItemPreLista(){
+    public List<ItemPreListaMolde> listarItensPreLista(){
         List<ItemPreListaMolde> listaItensPreLista = new ArrayList<>();
 
-        String sql = "SELECT * FROM item_pre_lista";
+        String sql = """
+            SELECT i.id_item_lista, i.fk_pre_lista, f.nome_juridico AS fornecedor, p.nome AS produto, i.qtd AS quantidade
+            FROM Item_pre_lista i
+            JOIN fornecedor f ON i.fk_pre_lista = f.id_fornecedor
+            JOIN produto p ON i.fk_produto = p.id_produto
+            ORDER BY i.id_item_lista
+        """;
 
         try (Connection conexao = ConexaoBanco.conectar();
              PreparedStatement stmt = conexao.prepareStatement(sql);
@@ -45,11 +51,11 @@ public class ItemPreListaDAO {
 
                 int id_ItemPreLista = rs.getInt("id_item_lista");
                 int fkPreLista = rs.getInt("fk_pre_lista");
-                int fkFornecedor = rs.getInt("fk_fornecedor");
-                int fkProduto = rs.getInt("fk_produto");
-                int qtd = rs.getInt("qtd");
+                String fornecedor = rs.getString("fornecedor");
+                String produto = rs.getString("produto");
+                int qtd = rs.getInt("quantidade");
 
-                ItemPreListaMolde novoItemPreLista = new ItemPreListaMolde(id_ItemPreLista, fkPreLista, fkFornecedor, fkProduto, qtd);
+                ItemPreListaMolde novoItemPreLista = new ItemPreListaMolde(id_ItemPreLista, fkPreLista, fornecedor, produto, qtd);
                 listaItensPreLista.add(novoItemPreLista);
             }
 
