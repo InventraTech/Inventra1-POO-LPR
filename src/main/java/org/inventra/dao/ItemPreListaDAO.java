@@ -12,17 +12,17 @@ import java.util.List;
 
 public class ItemPreListaDAO {
     //CREATE
-    public void inserirItemPreLista(ItemPreListaMolde ItemPreLista){
+    public void inserirItemPreLista(ItemPreListaMolde itemPreLista){
 
         String sql = "INSERT INTO item_pre_lista (fk_pre_lista, fk_fornecedor, fk_produto, qtd) VALUES(?, ?, ?, ?)";
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql)){
 
-            stmt.setInt(1, ItemPreLista.getFk_preLista());
-            stmt.setInt(2, ItemPreLista.getFk_fornecedor());
-            stmt.setInt(3, ItemPreLista.getFk_produto());
-            stmt.setInt(4, ItemPreLista.getQtd());
+            stmt.setInt(1, itemPreLista.getFk_preLista());
+            stmt.setInt(2, itemPreLista.getFk_fornecedor());
+            stmt.setInt(3, itemPreLista.getFk_produto());
+            stmt.setInt(4, itemPreLista.getQtd());
 
             stmt.executeUpdate();
 
@@ -66,7 +66,36 @@ public class ItemPreListaDAO {
 
     }
 
-    public void updateItemPreLista(String NomeColuna, String novoValor, int id_item_prelista) {
+    public void atualizarItemPreListaCompleto(ItemPreListaMolde itemPreListaMolde, int id_itemPreLista){
+
+        String sql = """
+                UPDATE item_pre_lista
+                SET fk_pre_lista = ?,
+                	fk_fornecedor = ?,
+                	fk_produto = ?,
+                	qtd = ?
+                WHERE id_item_lista = ?
+                """;
+
+        try (Connection conexao = ConexaoBanco.conectar();
+             PreparedStatement stmt = conexao.prepareStatement(sql)){
+
+            stmt.setInt(1, itemPreListaMolde.getFk_preLista());
+            stmt.setInt(2, itemPreListaMolde.getFk_fornecedor());
+            stmt.setInt(3, itemPreListaMolde.getFk_produto());
+            stmt.setInt(4, itemPreListaMolde.getQtd());
+
+            stmt.setInt(5, id_itemPreLista);
+
+            stmt.executeUpdate();
+
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void atualizarColunaItemPreLista(String NomeColuna, String novoValor, int id_item_prelista) {
         String sql = ("UPDATE item_pre_lista SET " + NomeColuna + " = ? WHERE id_item_lista = ?");
 
         try (Connection conexao = ConexaoBanco.conectar();
@@ -98,7 +127,7 @@ public class ItemPreListaDAO {
     }
 
     //DELETE
-    public void deleteItemPreLista(int id_itemPreLista){
+    public void deletarItemPreLista(int id_itemPreLista){
 
         String sql = "DELETE FROM Item_pre_lista WHERE id_item_lista = ?";
 

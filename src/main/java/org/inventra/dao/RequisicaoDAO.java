@@ -81,7 +81,45 @@ public class RequisicaoDAO {
     }
 
     // 3. UPDATE
-    public void atualizarRequisicao(String nomeColuna, String novoValor, int id_requisicao){
+
+    public void atualizarRequisicaoCompleta(RequisicaoMolde requisicao, int id_requisicao){
+
+        String sql = """
+                UPDATE requisicao
+                SET id_tiporequisicao = ?,
+                	quantidade_prod = ?,
+                	motivo = ?,
+                	status = ?,
+                	dt_requisicao = ?,
+                	fk_funcionario_solicitante = ?,
+                	fk_funcionario_aprovador = ?,
+                	fk_produto = ?
+                WHERE id_requisicao = ?
+                """;
+
+        try (Connection conexao = ConexaoBanco.conectar();
+             PreparedStatement stmt = conexao.prepareStatement(sql)){
+
+            stmt.setInt(1, requisicao.getIdTipoRequisicao());
+            stmt.setInt(2, requisicao.getQuantidadeProduto());
+            stmt.setString(3, requisicao.getMotivo());
+            stmt.setString(4, requisicao.getStatus());
+            stmt.setObject(5, requisicao.getDataHora());
+            stmt.setInt(6, requisicao.getFkFuncionarioSolicitante());
+            stmt.setInt(7, requisicao.getFkFuncionarioAprovador());
+            stmt.setInt(8, requisicao.getFkProduto());
+
+            stmt.setInt(9, id_requisicao);
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    //Metodo que recebe uma coluna especifica e um novo valor, editando apenas uma, ideal para alterações simples.
+    public void atualizarColunaRequisicao(String nomeColuna, String novoValor, int id_requisicao){
         String sql = "UPDATE requisicao SET " + nomeColuna + " = ? WHERE id_requisicao = ?";
 
         try (Connection conexao = ConexaoBanco.conectar();

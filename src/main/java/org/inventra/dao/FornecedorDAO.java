@@ -65,7 +65,42 @@ public class FornecedorDAO {
         return listaFornecedores;
     }
 
-    public void atualizarFornecedor(String NomeColuna, String novoValor, int id_fornecedor) {
+    public void atualizarFornecedorCompleto(FornecedorMolde fornecedor, int id_fornecedor){
+
+        String sql = """
+                UPDATE fornecedor
+                SET nome_juridico = ?,
+                	cnpj = ?,
+                	email = ?,
+                	telefone = ?,
+                	nota_vpq = ?,
+                	fk_regiao = ?
+                WHERE id_fornecedor = ?
+                """;
+
+        try (Connection conexao = ConexaoBanco.conectar();
+             PreparedStatement stmt = conexao.prepareStatement(sql)){
+
+            stmt.setString(1, fornecedor.getNome_juridico());
+            stmt.setString(2, fornecedor.getCnpj());
+            stmt.setString(3, fornecedor.getEmail());
+            stmt.setString(4, fornecedor.getTelefone());
+            stmt.setInt(5, fornecedor.getNota_vpq());
+            stmt.setInt(6, fornecedor.getFk_regiao());
+
+            stmt.setInt(7, id_fornecedor);
+
+            stmt.executeUpdate();
+
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    //Metodo que recebe uma coluna especifica e um novo valor, editando apenas uma, ideal para alterações simples.
+    public void atualizarColunaFornecedor(String NomeColuna, String novoValor, int id_fornecedor) {
         String sql = ("UPDATE fornecedor SET " + NomeColuna + " = ? WHERE id_fornecedor = ?");
 
         try (Connection conexao = ConexaoBanco.conectar();

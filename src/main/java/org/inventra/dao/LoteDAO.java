@@ -1,6 +1,7 @@
 package org.inventra.dao;
 
 import org.inventra.conexao.ConexaoBanco;
+import org.inventra.model.FornecedorMolde;
 import org.inventra.model.LoteMolde;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -74,8 +75,46 @@ public class LoteDAO {
     }
 
     // 3. UPDATE
-    public void atualizarLote(String NomeColuna, String novoValor, int id_lote){
-        String sql = ("UPDATE lote SET "+NomeColuna+" = ? WHERE id_estoque = ?");
+
+    public void atualizarLoteCompleto(LoteMolde lote, int id_lote){
+
+        String sql = """
+                UPDATE lote
+                SET fk_produto = ?,
+                	numero_lote = ?,
+                	qtd_inicial = ?,
+                	qtd_atual = ?,
+                	dt_entrada = ?,
+                	dt_validade = ?,
+                	valor_compra = ?,
+                	nota_fiscal = ?
+                WHERE id_lote
+                """;
+
+        try (Connection conexao = ConexaoBanco.conectar();
+             PreparedStatement stmt = conexao.prepareStatement(sql)){
+
+            stmt.setInt(1, lote.getFk_produto());
+            stmt.setString(2, lote.getNumero_lote());
+            stmt.setInt(3, lote.getQtd_inicial());
+            stmt.setInt(4, lote.getQtd_atual());
+            stmt.setObject(5, lote.getDt_entrada());
+            stmt.setObject(6, lote.getDt_validade());
+            stmt.setBigDecimal(7, lote.getValor_compra()); // Utilização correta do BigDecimal
+            stmt.setString(8, lote.getNota_fiscal());
+
+            stmt.setInt(9, id_lote);
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    //Metodo que recebe uma coluna especifica e um novo valor, editando apenas uma, ideal para alterações simples.
+    public void atualizarColunaLote(String NomeColuna, String novoValor, int id_lote){
+        String sql = ("UPDATE lote SET "+NomeColuna+" = ? WHERE id_lote = ?");
 
         try (Connection conexao = ConexaoBanco.conectar();
              PreparedStatement stmt = conexao.prepareStatement(sql)){

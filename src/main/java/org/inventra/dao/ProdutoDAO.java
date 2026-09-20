@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProdutoDAO {
-    //! 1.CREATE
+    // 1.CREATE
     public void inserirProduto(ProdutoMolde produto){
 
         String sql = "INSERT INTO produto (nome, fk_marca, fk_categoria, unidade_medida, estoque_min, estoque_max, fk_fornecedor, descricao, ativo) values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -79,8 +79,47 @@ public class ProdutoDAO {
         return listaProdutos;
     }
 
-    //! 3.UPDATE
-    public void atualizarProduto(String nomeColuna, String novoValor, int id_produto){
+    // 3.UPDATE
+    //Metodo que recebe o molde completo com todos os atributos do produto, assim alterando tudo.
+    public void atualizarProdutoCompleto(ProdutoMolde produto, int id_produto){
+        String sql = """
+                UPDATE produto
+                SET nome = ?,
+                	fk_marca = ?,
+                	fk_categoria = ?,
+                	unidade_medida = ?,
+                	estoque_min = ?,
+                	estoque_max = ?,
+                	fk_fornecedor = ?,
+                	descricao = ?,
+                	ativo = ?
+                WHERE id_produto = ?
+                """;
+
+        try (Connection conexao = ConexaoBanco.conectar();
+             PreparedStatement stmt = conexao.prepareStatement(sql)){
+
+            stmt.setString(1, produto.getNome());
+            stmt.setInt(2, produto.getFk_marca());
+            stmt.setInt(3, produto.getFk_categoria());
+            stmt.setString(4, produto.getUnidadeMedida());
+            stmt.setInt(5, produto.getEstoqueMin());
+            stmt.setInt(6, produto.getEstoqueMax());
+            stmt.setInt(7, produto.getFk_fornecedor());
+            stmt.setString(8, produto.getDescricao());
+            stmt.setBoolean(9, produto.isAtivo());
+
+            stmt.setInt(10, id_produto);
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    //Metodo que recebe uma coluna especifica e um novo valor, editando apenas uma, ideal para alterações simples.
+    public void atualizarColunaProduto(String nomeColuna, String novoValor, int id_produto){
 
         String sql = ("UPDATE produto SET "+nomeColuna+" = ? WHERE id_produto = ?");
 
@@ -113,7 +152,7 @@ public class ProdutoDAO {
             }
 
             stmt.setInt(2, id_produto);
-
+            stmt.executeUpdate();
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
