@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.inventra.dao.FornecedorDAO;
 import org.inventra.model.FornecedorMolde;
-import org.inventra.model.ProdutoMolde;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,8 +26,25 @@ public class FornecedorServlet extends HttpServlet{
             HttpServletRequest request,
             HttpServletResponse response
     ) throws ServletException, IOException {
+        String filtroSelecionado = request.getParameter("filtro");
 
-        List<FornecedorMolde> fornecedores = fornecedorDAO.listarFornecedor();
+        List<FornecedorMolde> fornecedores;
+        fornecedores = fornecedorDAO.consultarFornecedor();
+
+        if (filtroSelecionado != null){
+            switch (filtroSelecionado){
+                case "notaVPQ_crescente" -> {
+                    fornecedores = fornecedorDAO.listarFornecedorNotaVPQ(true);
+                }
+                case "notaVPQ_decrescente" -> {
+                    fornecedores = fornecedorDAO.listarFornecedorNotaVPQ(false);
+                }
+                default -> {
+                    fornecedores = fornecedorDAO.consultarFornecedor();
+                }
+            }
+        }
+
 
         request.setAttribute("fornecedores", fornecedores);
 

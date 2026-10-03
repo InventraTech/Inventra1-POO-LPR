@@ -26,14 +26,38 @@ public class ProdutoServlet extends HttpServlet {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws ServletException, IOException {
+        String filtroSelecionado = request.getParameter("filtro");
 
-        List<ProdutoMolde> produtos = produtoDAO.listarProdutos();
+        List<ProdutoMolde> produtos;
+        produtos = produtoDAO.listarProdutos();
+
+        if (filtroSelecionado != null){
+            switch (filtroSelecionado){
+                case "validade_proxima" -> {
+                    produtos = produtoDAO.listarProdutosPorData(true);
+                } case "validade_distante" -> {
+                    produtos = produtoDAO.listarProdutosPorData(false);
+                } case "az" -> {
+                    produtos = produtoDAO.listarProdutosAlfabetica(true);
+                } case "za" -> {
+                    produtos = produtoDAO.listarProdutosAlfabetica(false);
+                } case "quantidade" -> {
+                    produtos = produtoDAO.listarProdutosQuantidade();
+                } case "marca" -> {
+                    produtos = produtoDAO.listarProdutosPorMarca();
+                }
+                default -> {
+                    produtos = produtoDAO.listarProdutos();
+                }
+            }
+        }
 
         request.setAttribute("produtos", produtos);
 
         request.getRequestDispatcher(
                 "/WEB-INF/views/lista-produtos.jsp"
         ).forward(request, response);
+
     }
 
     @Override
@@ -73,7 +97,6 @@ public class ProdutoServlet extends HttpServlet {
 
             //Return faz com que pare aqui caso seja escolhido
             return;
-
         }
 
         else if (acao.equals("atualizar_completo")){

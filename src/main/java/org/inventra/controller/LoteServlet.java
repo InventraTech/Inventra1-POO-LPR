@@ -7,11 +7,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.inventra.dao.LoteDAO;
 import org.inventra.model.LoteMolde;
-import org.inventra.model.ProdutoMolde;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -30,8 +28,33 @@ public class LoteServlet extends HttpServlet{
             HttpServletRequest request,
             HttpServletResponse response
     ) throws ServletException, IOException {
+        String filtroSelecionado = request.getParameter("filtro");
 
-        List<LoteMolde> lotes = loteDao.listarLote();
+        List<LoteMolde> lotes;
+        lotes = loteDao.listarLote();
+
+        if(filtroSelecionado != null){
+            switch (filtroSelecionado){
+                case "entrada_crescente" -> {
+                    lotes = loteDao.listarLoteDataEntrada(true);
+                }
+                case "entrada_decrescente" -> {
+                    lotes = loteDao.listarLoteDataEntrada(false);
+                }
+                case "validade_crescente" -> {
+                    lotes = loteDao.listarLoteDataValidade(true);
+                }
+                case "validade_decrescente" -> {
+                    lotes = loteDao.listarLoteDataValidade(false);
+                }
+                case "produtos_atual" -> {
+                    lotes = loteDao.listarLoteQuantidadeProdutosAtual();
+                }
+                default -> {
+                    lotes = loteDao.listarLote();
+                }
+            }
+        }
 
         request.setAttribute("lotes", lotes);
 

@@ -9,7 +9,6 @@ import org.inventra.dao.RequisicaoDAO;
 import org.inventra.model.RequisicaoMolde;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,7 +28,7 @@ public class RequisicaoServlet extends HttpServlet{
             HttpServletResponse response
     ) throws ServletException, IOException {
 
-        List<RequisicaoMolde> requisicoes = requisicaoDAO.listarRequisicoes();
+        List<RequisicaoMolde> requisicoes = requisicaoDAO.consultarRequisicoes();
 
         request.setAttribute("requisicoes", requisicoes);
 

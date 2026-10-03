@@ -28,8 +28,29 @@ public class FuncionarioServlet extends HttpServlet {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws ServletException, IOException {
+        String filtroSelecionado = request.getParameter("filtro");
 
-        List<FuncionarioMolde> funcionarios = funcionarioDAO.listarFuncionario();
+        List<FuncionarioMolde> funcionarios;
+        funcionarios = funcionarioDAO.listarFuncionario();
+
+        if (filtroSelecionado != null){
+            switch (filtroSelecionado){
+                case "az" -> {
+                    funcionarios = funcionarioDAO.listarFuncionarioAlfabetico(true);
+                } case "za" -> {
+                    funcionarios = funcionarioDAO.listarFuncionarioAlfabetico(false);
+                } case "setor" -> {
+                    funcionarios = funcionarioDAO.listarFuncionarioPorSetor();
+                } case "data_crescente" -> {
+                    funcionarios = funcionarioDAO.listarFuncionarioPorData(true);
+                } case "data_decrescente" -> {
+                    funcionarios = funcionarioDAO.listarFuncionarioPorData(false);
+                }
+                default -> {
+                    funcionarios = funcionarioDAO.listarFuncionario();
+                }
+            }
+        }
 
         request.setAttribute("funcionarios", funcionarios);
 
@@ -160,5 +181,9 @@ public class FuncionarioServlet extends HttpServlet {
         );
 
     }
+
+    //FILTROS:
+
+
 
 }
