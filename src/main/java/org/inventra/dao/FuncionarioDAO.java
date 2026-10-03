@@ -12,11 +12,8 @@ import java.util.List;
 
 
 public class FuncionarioDAO {
+
     // 1.CREATE
-    /**
-     * A classe insertFuncionario serve para inserir novos dados na tabela funcionários
-     * @author Jorge Llanos
-     */
     public void inserirFuncionario(FuncionarioMolde funcionario){
 
         //String sql: É o código SQL que será enviado para ser executado no banco.
@@ -45,19 +42,15 @@ public class FuncionarioDAO {
     }
 
     // 2.READ
-    /**
-     * O metodo SelectFuncionario exibe as colunas presentes no banco e seus valores
-     */
-    public List<FuncionarioMolde> listarFuncionario(){
-        List<FuncionarioMolde> array = new ArrayList<>();
-
-        String sql = """
+    public static final String sqlBase = """
             SELECT f.id_funcionario, f.nome AS nome_funcionario, f.senha, f. email, f.telefone, f.cpf,
             f.dt_admissao, f.status, s.nome AS setor
             FROM funcionario f 
             JOIN setor s ON f.fk_setor = s.id_setor
-            ORDER BY f.id_funcionario
-        """;
+            """;
+
+    public List<FuncionarioMolde> consultarFuncionario(String sql){
+        List<FuncionarioMolde> array = new ArrayList<>();
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql);
@@ -86,11 +79,46 @@ public class FuncionarioDAO {
         return array;
     }
 
-    // 3. UPDATE
-    /**
-     * @author Jorge LLanos
-     */
-    public void atualizarFuncionario(String NomeColuna, String novoValor, int id_funcionario){
+    // 3. UPDATES
+
+    //Metodo que recebe o molde completo com todos os atributos do funcionario, assim alterando tudo.
+    public void atualizarFuncionarioCompleto(FuncionarioMolde funcionario, int id_funcionario){
+
+        String sql = """
+                UPDATE funcionario
+                SET nome = ?,
+                	senha = ?,
+                	fk_setor = ?,
+                	email = ?,
+                	telefone = ?,
+                	cpf = ?,
+                	dt_admissao = ?,
+                	status = ?
+                WHERE id_funcionario = ?
+                """;
+
+        try (Connection conexao = ConexaoBanco.conectar();
+             PreparedStatement stmt = conexao.prepareStatement(sql)){
+
+            stmt.setString(1, funcionario.getNome());
+            stmt.setString(2, funcionario.getSenha());
+            stmt.setInt(3, funcionario.getFk_setor());
+            stmt.setString(4, funcionario.getEmail());
+            stmt.setString(5, funcionario.getTelefone());
+            stmt.setString(6, funcionario.getCpf() );
+            stmt.setObject(7, funcionario.getDt_admissao());
+            stmt.setString(8, funcionario.getStatus());
+
+            stmt.setInt(9, id_funcionario);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    //Metodo que recebe uma coluna especifica e um novo valor, editando apenas uma, ideal para alterações simples.
+    public void atualizarColunaFuncionario(String NomeColuna, String novoValor, int id_funcionario){
 
         String sql = ("UPDATE funcionario SET "+NomeColuna+" = ? WHERE id_funcionario = ?");
 
@@ -100,25 +128,28 @@ public class FuncionarioDAO {
             if(NomeColuna.equalsIgnoreCase("nome")){
                 stmt.setString(1, novoValor);
             }
-            else if (NomeColuna.equalsIgnoreCase("Senha")){
+            else if (NomeColuna.equalsIgnoreCase("senha")){
                 stmt.setString(1, novoValor);
             }
-            else if (NomeColuna.equalsIgnoreCase("FK_setor")){
+            else if (NomeColuna.equalsIgnoreCase("fk_setor")){
                 stmt.setInt(1, Integer.parseInt(novoValor));
                 //Transforma a STRING novoValor em um INT para o banco.
             }
-            else if (NomeColuna.equalsIgnoreCase("Email")){
+            else if (NomeColuna.equalsIgnoreCase("email")){
                 stmt.setString(1, novoValor);
             }
-            else if (NomeColuna.equalsIgnoreCase("Telefone")){
+            else if (NomeColuna.equalsIgnoreCase("telefone")){
             stmt.setString(1, novoValor);
             }
-            else if (NomeColuna.equalsIgnoreCase("CPF")){
+            else if (NomeColuna.equalsIgnoreCase("cpf")){
                 stmt.setString(1, novoValor);
             }
             else if (NomeColuna.equalsIgnoreCase("dt_admissao")){
                 LocalDate dt_admissao = LocalDate.parse(novoValor); // Converte o texto para LocalDate
                 stmt.setObject(1, dt_admissao);
+            }
+            else if (NomeColuna.equalsIgnoreCase("status")){
+                stmt.setString(1, novoValor);
             }
             //! Passa o segundo parâmetro, o ID
             stmt.setInt(2, id_funcionario);
@@ -132,11 +163,9 @@ public class FuncionarioDAO {
         }
     }
 
+
+
     // 4.DELETE
-    /**
-     * Esse método deleta um funcionário com base em seu número de ID
-     * @author Jorge Llanos
-     */
     public void deletarFuncionario(int id_funcionario){
 
         String sql = "DELETE FROM funcionario WHERE id_funcionario = ?";
@@ -160,4 +189,31 @@ public class FuncionarioDAO {
             erro.printStackTrace();
         }
     }
+
+    //MÉTODOS DE FILTRAGEM
+
+    public List<FuncionarioMolde> listarFuncionario(){
+        return consultarFuncionario(sqlBase.concat("order by f.id_funcionario"));
+    }
+
+    public List<FuncionarioMolde> listarFuncionarioPorSetor(){
+        return consultarFuncionario(sqlBase.concat("order by s.nome, f.nome"));
+    }
+
+    public List<FuncionarioMolde> listarFuncionarioAlfabetico(boolean ordem){
+        if (ordem) {
+            return consultarFuncionario(sqlBase.concat(" ORDER BY f.nome ASC"));
+        } else {
+            return consultarFuncionario(sqlBase.concat(" ORDER BY f.nome DESC"));
+        }
+    }
+
+    public List<FuncionarioMolde> listarFuncionarioPorData(boolean ordem){
+        if (ordem) {
+            return consultarFuncionario(sqlBase.concat(" order by f.dt_admissao desc"));
+        } else {
+            return consultarFuncionario(sqlBase.concat(" order by f.dt_admissao asc"));
+        }
+    }
+
 }

@@ -38,14 +38,15 @@ public class LoteDAO {
     }
 
     // 2. READ
-    public List<LoteMolde> listarLote(){
-        List<LoteMolde> array = new ArrayList<>();
-        String sql = """
+
+    public static final String sqlBase = """
             SELECT l.id_lote, p.nome AS nome_produto, l.numero_lote, l.qtd_inicial, l.qtd_atual, l.dt_entrada, l.dt_validade, l.valor_compra, l.nota_fiscal
             FROM lote l
             JOIN produto p ON l.fk_produto = p.id_produto
-            ORDER BY id_lote
-        """;
+            """;
+
+    public List<LoteMolde> consultarLote(String sql){
+        List<LoteMolde> array = new ArrayList<>();
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql);
@@ -74,8 +75,46 @@ public class LoteDAO {
     }
 
     // 3. UPDATE
-    public void atualizarLote(String NomeColuna, String novoValor, int id_lote){
-        String sql = ("UPDATE lote SET "+NomeColuna+" = ? WHERE id_estoque = ?");
+
+    public void atualizarLoteCompleto(LoteMolde lote, int id_lote){
+
+        String sql = """
+                UPDATE lote
+                SET fk_produto = ?,
+                	numero_lote = ?,
+                	qtd_inicial = ?,
+                	qtd_atual = ?,
+                	dt_entrada = ?,
+                	dt_validade = ?,
+                	valor_compra = ?,
+                	nota_fiscal = ?
+                WHERE id_lote
+                """;
+
+        try (Connection conexao = ConexaoBanco.conectar();
+             PreparedStatement stmt = conexao.prepareStatement(sql)){
+
+            stmt.setInt(1, lote.getFk_produto());
+            stmt.setString(2, lote.getNumero_lote());
+            stmt.setInt(3, lote.getQtd_inicial());
+            stmt.setInt(4, lote.getQtd_atual());
+            stmt.setObject(5, lote.getDt_entrada());
+            stmt.setObject(6, lote.getDt_validade());
+            stmt.setBigDecimal(7, lote.getValor_compra()); // Utilização correta do BigDecimal
+            stmt.setString(8, lote.getNota_fiscal());
+
+            stmt.setInt(9, id_lote);
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    //Metodo que recebe uma coluna especifica e um novo valor, editando apenas uma, ideal para alterações simples.
+    public void atualizarColunaLote(String NomeColuna, String novoValor, int id_lote){
+        String sql = ("UPDATE lote SET "+NomeColuna+" = ? WHERE id_lote = ?");
 
         try (Connection conexao = ConexaoBanco.conectar();
              PreparedStatement stmt = conexao.prepareStatement(sql)){
@@ -139,4 +178,42 @@ public class LoteDAO {
             erro.printStackTrace();
         }
     }
+
+    public List<LoteMolde> listarLote(){
+        return consultarLote(sqlBase.concat(" ORDER BY id_lote asc"));
+    }
+
+    public List<LoteMolde> listarLoteQuantidadeProdutosAtual(){
+        return consultarLote(sqlBase.concat(" ORDER BY qtd_atual desc"));
+    }
+
+    public List<LoteMolde> listarLoteDataEntrada(boolean ordem){
+        if(ordem){
+            return consultarLote(sqlBase.concat(" ORDER BY dt_entrada asc"));
+        } else {
+            return consultarLote(sqlBase.concat(" ORDER BY dt_entrada desc"));
+        }
+    }
+
+    public List<LoteMolde> listarLoteDataValidade(boolean ordem){
+        if(ordem){
+            return consultarLote(sqlBase.concat(" ORDER BY dt_validade asc"));
+        } else {
+            return consultarLote(sqlBase.concat(" ORDER BY dt_validade desc"));
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

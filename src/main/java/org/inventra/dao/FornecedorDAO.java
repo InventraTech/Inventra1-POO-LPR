@@ -2,6 +2,7 @@ package org.inventra.dao;
 
 import org.inventra.conexao.ConexaoBanco;
 import org.inventra.model.FornecedorMolde;
+import org.inventra.model.ProdutoMolde;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -32,15 +33,14 @@ public class FornecedorDAO {
         }
     }
 
-    public List<FornecedorMolde> listarFornecedor(){
-        List<FornecedorMolde> listaFornecedores = new ArrayList<>();
-
-        String sql = """
+    public static final String sqlBase = """
             SELECT f.id_fornecedor, f.nome_juridico, f.cnpj, f.email, f.telefone, f.nota_vpq, CONCAT(r.estado, ' | ', r.cidade) AS regiao
             FROM fornecedor f 
             JOIN regiao r ON f.fk_regiao = r.id_regiao
-            ORDER BY f.id_fornecedor
-        """;
+            """;
+
+    public List<FornecedorMolde> consultarFornecedor(String sql){
+        List<FornecedorMolde> listaFornecedores = new ArrayList<>();
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql);
@@ -65,7 +65,42 @@ public class FornecedorDAO {
         return listaFornecedores;
     }
 
-    public void atualizarFornecedor(String NomeColuna, String novoValor, int id_fornecedor) {
+    public void atualizarFornecedorCompleto(FornecedorMolde fornecedor, int id_fornecedor){
+
+        String sql = """
+                UPDATE fornecedor
+                SET nome_juridico = ?,
+                	cnpj = ?,
+                	email = ?,
+                	telefone = ?,
+                	nota_vpq = ?,
+                	fk_regiao = ?
+                WHERE id_fornecedor = ?
+                """;
+
+        try (Connection conexao = ConexaoBanco.conectar();
+             PreparedStatement stmt = conexao.prepareStatement(sql)){
+
+            stmt.setString(1, fornecedor.getNome_juridico());
+            stmt.setString(2, fornecedor.getCnpj());
+            stmt.setString(3, fornecedor.getEmail());
+            stmt.setString(4, fornecedor.getTelefone());
+            stmt.setInt(5, fornecedor.getNota_vpq());
+            stmt.setInt(6, fornecedor.getFk_regiao());
+
+            stmt.setInt(7, id_fornecedor);
+
+            stmt.executeUpdate();
+
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    //Metodo que recebe uma coluna especifica e um novo valor, editando apenas uma, ideal para alterações simples.
+    public void atualizarColunaFornecedor(String NomeColuna, String novoValor, int id_fornecedor) {
         String sql = ("UPDATE fornecedor SET " + NomeColuna + " = ? WHERE id_fornecedor = ?");
 
         try (Connection conexao = ConexaoBanco.conectar();
@@ -122,6 +157,18 @@ public class FornecedorDAO {
         } catch (SQLException erro) {
             System.out.println("Erro ao conectar com o banco.");
             erro.printStackTrace();
+        }
+    }
+
+    public List<FornecedorMolde> listarFornecedor(){
+        return consultarFornecedor(sqlBase.concat("order by f.id_fornecedor"));
+    }
+
+    public List<FornecedorMolde> listarFornecedorNotaVPQ(boolean ordem) {
+        if (ordem) {
+            return consultarFornecedor(sqlBase.concat(" ORDER BY f.nota_vpq ASC"));
+        } else {
+            return consultarFornecedor(sqlBase.concat(" ORDER BY f.nota_vpq DESC"));
         }
     }
 }
