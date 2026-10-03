@@ -1,6 +1,7 @@
 package org.inventra.dao;
 
 import org.inventra.conexao.ConexaoBanco;
+import org.inventra.model.FornecedorMolde;
 import org.inventra.model.ItemPreListaMolde;
 
 import java.sql.Connection;
@@ -14,15 +15,14 @@ public class ItemPreListaDAO {
     //CREATE
     public void inserirItemPreLista(ItemPreListaMolde itemPreLista){
 
-        String sql = "INSERT INTO item_pre_lista (fk_pre_lista, fk_fornecedor, fk_produto, qtd) VALUES(?, ?, ?, ?)";
+        String sql = "INSERT INTO item_pre_lista (fk_fornecedor, fk_produto, qtd) VALUES(?, ?, ?)";
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql)){
 
-            stmt.setInt(1, itemPreLista.getFk_preLista());
-            stmt.setInt(2, itemPreLista.getFk_fornecedor());
-            stmt.setInt(3, itemPreLista.getFk_produto());
-            stmt.setInt(4, itemPreLista.getQtd());
+            stmt.setInt(1, itemPreLista.getFk_fornecedor());
+            stmt.setInt(2, itemPreLista.getFk_produto());
+            stmt.setInt(3, itemPreLista.getQtd());
 
             stmt.executeUpdate();
 
@@ -32,16 +32,16 @@ public class ItemPreListaDAO {
         }
     }
     //READ
-    public List<ItemPreListaMolde> listarItensPreLista(){
-        List<ItemPreListaMolde> listaItensPreLista = new ArrayList<>();
 
-        String sql = """
-            SELECT i.id_item_lista, i.fk_pre_lista, f.nome_juridico AS fornecedor, p.nome AS produto, i.qtd AS quantidade
+    public static final String sqlBase = """
+            SELECT i.id_item_lista, f.nome_juridico AS fornecedor, p.nome AS produto, i.qtd AS quantidade
             FROM Item_pre_lista i
             JOIN fornecedor f ON i.fk_pre_lista = f.id_fornecedor
             JOIN produto p ON i.fk_produto = p.id_produto
-            ORDER BY i.id_item_lista
-        """;
+            """;
+
+    public List<ItemPreListaMolde> consultarItensPreLista(String sql){
+        List<ItemPreListaMolde> listaItensPreLista = new ArrayList<>();
 
         try (Connection conexao = ConexaoBanco.conectar();
              PreparedStatement stmt = conexao.prepareStatement(sql);
@@ -50,12 +50,11 @@ public class ItemPreListaDAO {
             while(rs.next()){
 
                 int id_ItemPreLista = rs.getInt("id_item_lista");
-                int fkPreLista = rs.getInt("fk_pre_lista");
                 String fornecedor = rs.getString("fornecedor");
                 String produto = rs.getString("produto");
                 int qtd = rs.getInt("quantidade");
 
-                ItemPreListaMolde novoItemPreLista = new ItemPreListaMolde(id_ItemPreLista, fkPreLista, fornecedor, produto, qtd);
+                ItemPreListaMolde novoItemPreLista = new ItemPreListaMolde(id_ItemPreLista, fornecedor, produto, qtd);
                 listaItensPreLista.add(novoItemPreLista);
             }
 
@@ -70,8 +69,7 @@ public class ItemPreListaDAO {
 
         String sql = """
                 UPDATE item_pre_lista
-                SET fk_pre_lista = ?,
-                	fk_fornecedor = ?,
+                SET fk_fornecedor = ?,
                 	fk_produto = ?,
                 	qtd = ?
                 WHERE id_item_lista = ?
@@ -80,12 +78,11 @@ public class ItemPreListaDAO {
         try (Connection conexao = ConexaoBanco.conectar();
              PreparedStatement stmt = conexao.prepareStatement(sql)){
 
-            stmt.setInt(1, itemPreListaMolde.getFk_preLista());
-            stmt.setInt(2, itemPreListaMolde.getFk_fornecedor());
-            stmt.setInt(3, itemPreListaMolde.getFk_produto());
-            stmt.setInt(4, itemPreListaMolde.getQtd());
+            stmt.setInt(1, itemPreListaMolde.getFk_fornecedor());
+            stmt.setInt(2, itemPreListaMolde.getFk_produto());
+            stmt.setInt(3, itemPreListaMolde.getQtd());
 
-            stmt.setInt(5, id_itemPreLista);
+            stmt.setInt(4, id_itemPreLista);
 
             stmt.executeUpdate();
 
@@ -139,6 +136,28 @@ public class ItemPreListaDAO {
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    //FILTRAGENS
+
+    public List<ItemPreListaMolde> listarItensPreLista(){
+        return consultarItensPreLista(sqlBase.concat(" ORDER BY i.id_item_lista"));
+    }
+
+    public List<ItemPreListaMolde> listarItensPreListaPorFornecedores(){
+        return consultarItensPreLista(sqlBase.concat(" ORDER BY i.id_item_lista"));
+    }
+
+    public List<ItemPreListaMolde> listarItensPreListaPorProduto(){
+        return consultarItensPreLista(sqlBase.concat(" ORDER BY p.nome"));
+    }
+
+    public List<ItemPreListaMolde> listarItensPreListaPorQuantidade(boolean ordem) {
+        if (ordem) {
+            return consultarItensPreLista(sqlBase.concat(" ORDER BY i.qtd ASC"));
+        } else {
+            return consultarItensPreLista(sqlBase.concat(" ORDER BY i.qtd DESC"));
         }
     }
 }

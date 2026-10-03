@@ -12,11 +12,8 @@ import java.util.List;
 
 
 public class FuncionarioDAO {
+
     // 1.CREATE
-    /**
-     * A classe insertFuncionario serve para inserir novos dados na tabela funcionários
-     * @author Jorge Llanos
-     */
     public void inserirFuncionario(FuncionarioMolde funcionario){
 
         //String sql: É o código SQL que será enviado para ser executado no banco.
@@ -45,19 +42,15 @@ public class FuncionarioDAO {
     }
 
     // 2.READ
-    /**
-     * O metodo SelectFuncionario exibe as colunas presentes no banco e seus valores
-     */
-    public List<FuncionarioMolde> listarFuncionario(){
-        List<FuncionarioMolde> array = new ArrayList<>();
-
-        String sql = """
+    public static final String sqlBase = """
             SELECT f.id_funcionario, f.nome AS nome_funcionario, f.senha, f. email, f.telefone, f.cpf,
             f.dt_admissao, f.status, s.nome AS setor
             FROM funcionario f 
             JOIN setor s ON f.fk_setor = s.id_setor
-            ORDER BY f.id_funcionario
-        """;
+            """;
+
+    public List<FuncionarioMolde> consultarFuncionario(String sql){
+        List<FuncionarioMolde> array = new ArrayList<>();
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql);
@@ -124,9 +117,6 @@ public class FuncionarioDAO {
         }
     }
 
-    /**
-     * @author Jorge LLanos
-     */
     //Metodo que recebe uma coluna especifica e um novo valor, editando apenas uma, ideal para alterações simples.
     public void atualizarColunaFuncionario(String NomeColuna, String novoValor, int id_funcionario){
 
@@ -176,10 +166,6 @@ public class FuncionarioDAO {
 
 
     // 4.DELETE
-    /**
-     * Esse metodo deleta um funcionário com base em seu número de ID
-     * @author Jorge Llanos
-     */
     public void deletarFuncionario(int id_funcionario){
 
         String sql = "DELETE FROM funcionario WHERE id_funcionario = ?";
@@ -203,4 +189,31 @@ public class FuncionarioDAO {
             erro.printStackTrace();
         }
     }
+
+    //MÉTODOS DE FILTRAGEM
+
+    public List<FuncionarioMolde> listarFuncionario(){
+        return consultarFuncionario(sqlBase.concat("order by f.id_funcionario"));
+    }
+
+    public List<FuncionarioMolde> listarFuncionarioPorSetor(){
+        return consultarFuncionario(sqlBase.concat("order by s.nome, f.nome"));
+    }
+
+    public List<FuncionarioMolde> listarFuncionarioAlfabetico(boolean ordem){
+        if (ordem) {
+            return consultarFuncionario(sqlBase.concat(" ORDER BY f.nome ASC"));
+        } else {
+            return consultarFuncionario(sqlBase.concat(" ORDER BY f.nome DESC"));
+        }
+    }
+
+    public List<FuncionarioMolde> listarFuncionarioPorData(boolean ordem){
+        if (ordem) {
+            return consultarFuncionario(sqlBase.concat(" order by f.dt_admissao desc"));
+        } else {
+            return consultarFuncionario(sqlBase.concat(" order by f.dt_admissao asc"));
+        }
+    }
+
 }

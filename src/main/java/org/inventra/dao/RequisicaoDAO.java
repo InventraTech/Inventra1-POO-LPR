@@ -1,6 +1,7 @@
 package org.inventra.dao;
 
 import org.inventra.conexao.ConexaoBanco;
+import org.inventra.model.ProdutoMolde;
 import org.inventra.model.RequisicaoMolde;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,9 +39,9 @@ public class RequisicaoDAO {
     }
 
     // 2. READ
-    public List<RequisicaoMolde> listarRequisicoes(){
-        List<RequisicaoMolde> array = new ArrayList<>();
-        String sql = """
+
+    //SQL base:
+    public static final String sqlBase = """
             SELECT r.id_requisicao, t.tipo AS tipo_requisicao, r.quantidade_prod, r.motivo, r.status,
             r.dt_requisicao, fs.nome AS funcionario_solicitante, fa.nome AS funcionario_aprovador, p.nome AS produto
             FROM requisicao r
@@ -48,8 +49,10 @@ public class RequisicaoDAO {
             JOIN funcionario fs ON r.fk_funcionario_solicitante = fs.id_funcionario
             JOIN funcionario fa ON r.fk_funcionario_aprovador = fa.id_funcionario
             JOIN produto p ON r.fk_produto = p.id_produto
-            ORDER BY id_requisicao
-        """;
+            """;
+
+    public List<RequisicaoMolde> consultarRequisicoes(String sql){
+        List<RequisicaoMolde> array = new ArrayList<>();
 
         try(Connection conexao = ConexaoBanco.conectar();
             PreparedStatement stmt = conexao.prepareStatement(sql);
@@ -180,6 +183,32 @@ public class RequisicaoDAO {
         } catch (SQLException erro) {
             System.out.println("Erro ao conectar com o banco.");
             erro.printStackTrace();
+        }
+    }
+
+    //MÉTODOS DE LISTAGENS
+
+    public List<RequisicaoMolde> listarRequisicoes(){
+        return consultarRequisicoes(sqlBase.concat("order by r.id_requisicao"));
+    }
+
+    public List<RequisicaoMolde> listarRequisicoesPorTipo(){
+        return consultarRequisicoes(sqlBase.concat(" ORDER BY r.id_tiporequisicao"));
+    }
+
+    public List<RequisicaoMolde> listarRequisicoesPorQuantidadeProduto(boolean ordem) {
+        if (ordem) {
+            return consultarRequisicoes(sqlBase.concat(" ORDER BY r.quantidade_prod ASC"));
+        } else {
+            return consultarRequisicoes(sqlBase.concat(" ORDER BY r.quantidade_prod DESC"));
+        }
+    }
+
+    public List<RequisicaoMolde> listarRequisicoesPorData(boolean ordem) {
+        if (ordem) {
+            return consultarRequisicoes(sqlBase.concat(" ORDER BY r.dt_requisicao ASC"));
+        } else {
+            return consultarRequisicoes(sqlBase.concat(" ORDER BY r.dt_requisicao DESC"));
         }
     }
 }
